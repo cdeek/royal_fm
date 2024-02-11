@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simple Chat</title>
+  <style>
+    #chat-container {
+      height: 300px;
+      overflow-y: scroll;
+      border: 1px solid #ccc;
+      padding: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div id="chat-container"></div>
+  <input type="text" id="message-input" placeholder="Type your message">
+  <button onclick="sendMessage()">Send</button>
+
+  <script>
+    const chatContainer = document.getElementById('chat-container');
+    const messageInput = document.getElementById('message-input');
+
+    const socket = new WebSocket('ws://localhost:2220');
+
+    socket.addEventListener('open', (event) => {
+      console.log('Connected to the chat server');
+      const username = prompt('Enter your username:');
+      sendMessage(username);
+    });
+
+    socket.addEventListener('message', (event) => {
+      const message = event.data;
+      appendMessage(message);
+    });
+
+    function sendMessage(message) {
+      const text = message || messageInput.value;
+      if (text.trim() !== '') {
+        socket.send(text);
+        messageInput.value = '';
+      }
+    }
+
+    function appendMessage(message) {
+      const messageElement = document.createElement('p');
+      messageElement.textContent = message;
+      chatContainer.appendChild(messageElement);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+  </script>
+</body>
+</html>
